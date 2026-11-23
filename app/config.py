@@ -1,6 +1,8 @@
 """Application settings, loaded from environment variables."""
+import secrets
 from functools import lru_cache
 
+from pydantic import model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -9,9 +11,17 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite+pysqlite:///./dev.db"
     # Comma-separated list of accepted API keys for write endpoints.
-    # Empty string disables authentication (local development only).
+    # If unset, a random key is generated at startup and logged once (auth is never disabled).
     api_keys: str = ""
     log_level: str = "INFO"
+    api_key_generated: bool = False
+
+    @model_validator(mode="after")
+    def _ensure_api_key(self) -> "Settings":
+        if not self.api_key_set:
+            self.api_keys = secrets.token_urlsafe(24)
+            self.api_key_generated = True
+        return self
 
     @property
     def api_key_set(self) -> set[str]:

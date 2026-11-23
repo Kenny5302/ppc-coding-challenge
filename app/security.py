@@ -16,8 +16,6 @@ def require_api_key(
     settings: Settings = Depends(get_settings),
 ) -> None:
     valid = settings.api_key_set
-    if not valid:  # auth disabled (dev)
-        return
     if key is None:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Missing API key", {"WWW-Authenticate": "ApiKey"})
     # constant-time comparison against every configured key

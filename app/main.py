@@ -14,6 +14,11 @@ from app.routers import users
 
 configure_logging(get_settings().log_level)
 logger = logging.getLogger(__name__)
+if get_settings().api_key_generated:
+    logger.warning(
+        "API_KEYS not set; generated a temporary key for this process. Set API_KEYS for a stable key.",
+        extra={"generated_api_key": get_settings().api_keys},
+    )
 
 app = FastAPI(
     title="User Management API",

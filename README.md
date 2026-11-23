@@ -15,15 +15,21 @@ API: <http://localhost:8000> · Swagger UI: <http://localhost:8000/docs> · Heal
 Postgres data lives in the named volume `pgdata`, so records survive `docker compose restart` and `down`
 (only `down -v` deletes them). Migrations run automatically on API start.
 
-Write endpoints (POST/PUT/DELETE) require an `X-API-Key` header. The default dev key is `dev-api-key`;
-override with `API_KEYS=key1,key2 docker compose up`. Reads are public.
-The default DB password and API key are local-dev conveniences and the API is bound to `127.0.0.1` only;
-set `POSTGRES_PASSWORD` and `API_KEYS` for any shared or deployed environment.
+## Configuration and secrets
+
+No secret is hardcoded. Write endpoints (POST/PUT/DELETE) require an `X-API-Key` header; reads are public.
+
+- **API key:** set `API_KEYS=key1,key2` (env var or `.env`). If unset, the API generates a random key at startup and
+  prints it once in its logs: `docker compose logs api | grep generated_api_key`. Auth is never disabled.
+- **Database:** the Postgres container is not published to the host (only reachable by the API on the private compose
+  network), and the API port is bound to `127.0.0.1`. Its fallback password is a local convenience; set
+  `POSTGRES_PASSWORD` for anything shared. See `.env.example`.
 
 ## API examples
 
 ```bash
-K='X-API-Key: dev-api-key'; J='Content-Type: application/json'
+# use your key: from `.env`, or the one printed in the API logs at startup
+K="X-API-Key: $API_KEY"; J='Content-Type: application/json'
 
 # Create (birth_state accepts a 2-letter code or full name; stored as the code)
 curl -X POST localhost:8000/api/users -H "$K" -H "$J" -d '{"name":"Ada Lovelace","age":36,"birth_state":"Ohio"}'

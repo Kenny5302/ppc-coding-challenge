@@ -96,3 +96,8 @@ def test_name_and_age_filters(client, make_user):
     assert [u["name"] for u in r.json()] == ["Bob Annis"]
     assert client.get("/api/users", params={"min_age": 50, "max_age": 10}).status_code == 422
     assert client.get("/api/users", params={"name": "100%"}).json() == []
+
+
+@pytest.mark.parametrize("bad_id", ["0", "-1", "99999999999999999999"])
+def test_out_of_range_id_is_422_not_500(client, bad_id):
+    assert client.get(f"/api/users/{bad_id}").status_code == 422

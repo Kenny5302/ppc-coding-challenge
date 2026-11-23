@@ -27,7 +27,6 @@ def test_normalize_state_invalid(raw):
 
 def test_api_key_parsing():
     assert Settings(api_keys=" a, b ,,").api_key_set == {"a", "b"}
-    assert Settings(api_keys="").api_key_set == set()
 
 
 def test_json_formatter_includes_extras():
@@ -54,3 +53,10 @@ def test_unhandled_error_returns_500_without_leak(client, monkeypatch):
     monkeypatch.setattr(repository, "list_users", lambda *a, **k: 1 / 0)
     r = client.get("/api/users")
     assert r.status_code == 500 and "division" not in r.text
+
+
+def test_missing_api_key_generates_random_one():
+    a, b = Settings(api_keys=""), Settings(api_keys="")
+    assert a.api_key_generated and len(a.api_key_set) == 1
+    assert a.api_keys != b.api_keys
+    assert not Settings(api_keys="x").api_key_generated
