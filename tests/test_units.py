@@ -60,3 +60,16 @@ def test_missing_api_key_generates_random_one():
     assert a.api_key_generated and len(a.api_key_set) == 1
     assert a.api_keys != b.api_keys
     assert not Settings(api_keys="x").api_key_generated
+
+
+def test_generated_key_warning_never_logs_the_key(caplog):
+    from app.main import warn_if_key_generated
+
+    settings = Settings(api_keys="")
+    with caplog.at_level(logging.WARNING, logger="app.main"):
+        warn_if_key_generated(settings)
+    assert "API_KEYS is not set" in caplog.text
+    assert settings.api_keys not in caplog.text
+    caplog.clear()
+    warn_if_key_generated(Settings(api_keys="explicit"))
+    assert caplog.text == ""

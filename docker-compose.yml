@@ -1,4 +1,4 @@
-# NOTE: no API key is hardcoded (a random one is generated at startup unless API_KEYS is set).
+# NOTE: no API key is hardcoded (if API_KEYS is unset, write endpoints stay locked).
 # The Postgres container is NOT published to the host; its fallback password is only reachable on
 # the private compose network. Set POSTGRES_PASSWORD (see .env.example) for anything shared.
 services:
@@ -22,7 +22,7 @@ services:
       target: base
     environment:
       DATABASE_URL: postgresql+psycopg://${POSTGRES_USER:-app}:${POSTGRES_PASSWORD:-app_password}@db:5432/${POSTGRES_DB:-users}
-      API_KEYS: ${API_KEYS:-}   # empty -> random key generated and logged at startup
+      API_KEYS: ${API_KEYS:-}   # empty -> writes locked; set it to enable POST/PUT/DELETE
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
     ports:
       - "127.0.0.1:8000:8000"   # localhost only; defaults above are for local dev

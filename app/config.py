@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     database_url: str = "sqlite+pysqlite:///./dev.db"
     # Comma-separated list of accepted API keys for write endpoints.
-    # If unset, a random key is generated at startup and logged once (auth is never disabled).
+    # If unset, a random undisclosed key is generated so auth is never disabled (writes stay locked).
     api_keys: str = ""
     log_level: str = "INFO"
     api_key_generated: bool = False

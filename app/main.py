@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.config import get_settings
+from app.config import Settings, get_settings
 from app.database import SessionLocal
 from app.logging_config import configure_logging
 from app.middleware import RequestContextMiddleware
@@ -14,11 +14,18 @@ from app.routers import users
 
 configure_logging(get_settings().log_level)
 logger = logging.getLogger(__name__)
-if get_settings().api_key_generated:
-    logger.warning(
-        "API_KEYS not set; generated a temporary key for this process. Set API_KEYS for a stable key.",
-        extra={"generated_api_key": get_settings().api_keys},
-    )
+
+
+def warn_if_key_generated(settings: Settings) -> None:
+    """Warn that writes are locked when no API key was configured. Never logs key material."""
+    if settings.api_key_generated:
+        logger.warning(
+            "API_KEYS is not set: write endpoints (POST/PUT/DELETE) are locked behind a random, "
+            "undisclosed key. Set API_KEYS to use them. Reads are unaffected."
+        )
+
+
+warn_if_key_generated(get_settings())
 
 app = FastAPI(
     title="User Management API",

@@ -7,6 +7,7 @@ A containerized CRUD REST API for user records (`id`, `name`, `age`, `birth_stat
 ## Run
 
 ```bash
+export API_KEYS=my-secret-key        # needed only for POST/PUT/DELETE; reads work without it
 docker compose up --build
 ```
 
@@ -19,8 +20,8 @@ Postgres data lives in the named volume `pgdata`, so records survive `docker com
 
 No secret is hardcoded. Write endpoints (POST/PUT/DELETE) require an `X-API-Key` header; reads are public.
 
-- **API key:** set `API_KEYS=key1,key2` (env var or `.env`). If unset, the API generates a random key at startup and
-  prints it once in its logs: `docker compose logs api | grep generated_api_key`. Auth is never disabled.
+- **API key:** set `API_KEYS=key1,key2` (env var or `.env`) to use the write endpoints. If unset, a random key that is
+  never shown is used, so writes stay locked (auth is never disabled) and reads still work. Keys are never logged.
 - **Database:** the Postgres container is not published to the host (only reachable by the API on the private compose
   network), and the API port is bound to `127.0.0.1`. Its fallback password is a local convenience; set
   `POSTGRES_PASSWORD` for anything shared. See `.env.example`.
@@ -28,8 +29,7 @@ No secret is hardcoded. Write endpoints (POST/PUT/DELETE) require an `X-API-Key`
 ## API examples
 
 ```bash
-# use your key: from `.env`, or the one printed in the API logs at startup
-K="X-API-Key: $API_KEY"; J='Content-Type: application/json'
+K="X-API-Key: my-secret-key"; J='Content-Type: application/json'
 
 # Create (birth_state accepts a 2-letter code or full name; stored as the code)
 curl -X POST localhost:8000/api/users -H "$K" -H "$J" -d '{"name":"Ada Lovelace","age":36,"birth_state":"Ohio"}'
