@@ -17,6 +17,8 @@ Postgres data lives in the named volume `pgdata`, so records survive `docker com
 
 Write endpoints (POST/PUT/DELETE) require an `X-API-Key` header. The default dev key is `dev-api-key`;
 override with `API_KEYS=key1,key2 docker compose up`. Reads are public.
+The default DB password and API key are local-dev conveniences and the API is bound to `127.0.0.1` only;
+set `POSTGRES_PASSWORD` and `API_KEYS` for any shared or deployed environment.
 
 ## API examples
 
