@@ -30,7 +30,10 @@ warn_if_key_generated(get_settings())
 app = FastAPI(
     title="User Management API",
     version="1.0.0",
-    description="CRUD API for user records. Write endpoints require an `X-API-Key` header when API_KEYS is set.",
+    description=(
+        "CRUD API for user records. Write endpoints (POST/PUT/DELETE) require an `X-API-Key` "
+        "header matching one of the configured API_KEYS."
+    ),
 )
 app.add_middleware(RequestContextMiddleware)
 app.include_router(users.router)
